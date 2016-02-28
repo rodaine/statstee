@@ -1,0 +1,7 @@
+package: github.com/rodaine/statstee
+import:
+- package: github.com/PagerDuty/godspeed
+- package: github.com/gizak/termui
+- package: github.com/google/gopacket
+  subpackages:
+  - pcap

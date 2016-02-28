@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+
+GO15VENDOREXPERIMENT=1
+script/require-glide
+
+mkdir -p dist
+
+if test $# -lt 1; then
+  dir=`basename $(pwd)`
+  executables=$(grep "package main" ../$dir/*.go ../$dir/*/**/*.go | grep -v _test.go | grep -v vendor | cut -d: -f1 | xargs -n1 -I{} dirname {} | uniq)
+else
+  executables=$@
+fi
+
+for executable in ${executables[@]}; do
+  package="$executable"
+  test -d "$executable" && executable=$(basename $executable)
+  echo "building $executable"
+  go build -a -o dist/$executable ./$package
+  (test -f dist/$executable && file dist/$executable) || {
+    echo "dist/$executable failed to build. halting."
+    exit 1
+  }
+  echo
+done

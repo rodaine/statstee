@@ -1,0 +1,17 @@
+hash: eedd79135b1affd60b95636a8d8910ca8702e2541de8676e5af8375b90ebd9c8
+updated: 2016-02-28T03:16:29.915016994-08:00
+imports:
+- name: github.com/gizak/termui
+  version: 08a5d3f67b7d9ec87830ea39c48e570a1f18531f
+- name: github.com/google/gopacket
+  version: 3b097a3f06f4af581aed40162263ac34e636381e
+  subpackages:
+  - pcap
+  - layers
+- name: github.com/mattn/go-runewidth
+  version: d037b52ae5c0338c2bb18da01fb7ddf0e8be9aa1
+- name: github.com/nsf/termbox-go
+  version: 362329b0aa6447eadd52edd8d660ec1dff470295
+- name: github.com/PagerDuty/godspeed
+  version: ef757b820a7d6760a89641ac29541967eb6d9f05
+devImports: []
