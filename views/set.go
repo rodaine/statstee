@@ -18,7 +18,7 @@ type plotSet struct {
 	row    *termui.Row
 }
 
-func newSet(w *bucket.MetricWindow) *plotSet {
+func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
 	s := &plotSet{metric: w.Metric}
 	s.header = s.setHeader()
 
@@ -49,6 +49,13 @@ func newSet(w *bucket.MetricWindow) *plotSet {
 	}
 
 	s.row = termui.NewCol(dataWidth, 0, s.items()...)
+	if prev != nil {
+		s.row.Width = prev.Width
+		s.row.Height = prev.Height
+		s.row.X = prev.X
+		s.row.Y = prev.Y
+	}
+
 	s.update()
 
 	return s

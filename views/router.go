@@ -48,7 +48,6 @@ func (v *routerView) update(r *router.Router) {
 	}
 
 	v.Height = termui.TermHeight()
-	termui.Render(v)
 }
 
 func (v *routerView) metricItemLabel(m datagram.Metric, selected bool) string {
@@ -57,7 +56,7 @@ func (v *routerView) metricItemLabel(m datagram.Metric, selected bool) string {
 		return lbl
 	}
 
-	offset := v.InnerWidth() - len(lbl)
+	offset := v.Width - len(lbl)
 	if offset > 0 {
 		lbl += strings.Repeat(selectedPadding, offset)
 	}
