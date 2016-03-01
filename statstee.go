@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"flag"
-	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	errBuffer bytes.Buffer
+	logWriter io.WriteCloser
 
 	deviceInterface string = "lo"
 	sniffedPort     int    = 8125
@@ -22,18 +22,21 @@ var (
 )
 
 func init() {
-	log.SetOutput(&errBuffer)
-
 	flag.StringVar(&deviceInterface, "d", deviceInterface, "network device to listen on")
 	flag.IntVar(&sniffedPort, "p", sniffedPort, "statsd UDP port to listen on")
 	flag.IntVar(&windowSize, "n", windowSize, "seconds of data to keep")
-	flag.BoolVar(&outputDebug, "v", outputDebug, "display any debug output on quit")
+	flag.BoolVar(&outputDebug, "v", outputDebug, "display debug output to ~/.statstee.log")
 	flag.Parse()
+
+	log.SetOutput(ioutil.Discard)
 }
 
 func main() {
 	if outputDebug {
-		defer fmt.Fprintf(os.Stdout, errBuffer.String())
+		logWriter, _ = os.OpenFile("statstee.log", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+		log.SetFlags(log.Lmicroseconds | log.LstdFlags | log.Lshortfile)
+		log.SetOutput(logWriter)
+		defer logWriter.Close()
 	}
 
 	c := make(chan datagram.Metric, windowSize)
@@ -42,7 +45,7 @@ func main() {
 	go captureMetrics(router)
 	go sniffStream(c)
 
-	logIfError(views.Display(router))
+	logIfError(views.Loop(router))
 }
 
 func sniffStream(c chan datagram.Metric) {
