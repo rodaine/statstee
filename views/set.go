@@ -16,12 +16,11 @@ type plotSet struct {
 	plots  []*plot
 	header *termui.Par
 	row    *termui.Row
-
-	grid *termui.Grid
+	height int
 }
 
-func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
-	s := &plotSet{metric: w.Metric}
+func newSet(w *bucket.MetricWindow, prev *termui.Row, height int) *plotSet {
+	s := &plotSet{metric: w.Metric, height: height}
 	s.header = s.setHeader()
 
 	color := datagramColors[w.Metric.Type]
@@ -68,7 +67,7 @@ func (s *plotSet) draw() {
 }
 
 func (s *plotSet) update() {
-	ht := termui.TermHeight() - 1
+	ht := s.height - 1
 	ct := len(s.plots)
 
 	for _, p := range s.plots {

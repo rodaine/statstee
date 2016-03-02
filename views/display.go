@@ -21,43 +21,54 @@ type display struct {
 	grid       *termui.Grid
 	routerView *routerView
 	dataView   *plotSet
+
+	width, height int
 }
 
 func newDisplay(r *router.Router) *display {
 	d := &display{
 		router:     r,
-		routerView: newRouterView(r),
-		dataView:   newSet(bucket.DummyWindow, nil),
+		routerView: newRouterView(r, 100),
+		dataView:   newSet(bucket.DummyWindow, nil, 100),
 	}
 
 	d.grid = termui.NewGrid(termui.NewRow(
 		termui.NewCol(routerWidth, 0, d.routerView.l),
 		d.dataView.row,
 	))
-	d.grid.Width = termui.TermWidth()
-	d.grid.Align()
+
+	d.refreshDims()
 
 	return d
 }
 
 func (d *display) draw() {
-	d.routerView.drawIfNeeded()
-	//d.dataView.draw()
+	termui.Render(d.grid)
 }
 
 func (d *display) update(force bool) {
 	if force {
-		d.grid.Width = termui.TermWidth()
-		d.grid.Align()
+		d.refreshDims()
 	}
 
 	d.routerView.update(d.router, force)
 
 	if sel := d.router.SelectedMetric(); sel.Metric.Name != d.dataView.metric.Name {
-		d.dataView = newSet(sel, d.grid.Rows[0].Cols[1])
+		d.dataView = newSet(sel, d.grid.Rows[0].Cols[1], d.height)
 		d.grid.Rows[0].Cols[1] = d.dataView.row
 		d.grid.Align()
 	}
 
 	d.dataView.update()
+}
+
+func (d *display) refreshDims() {
+	d.width, d.height = termui.TermWidth(), termui.TermHeight()
+
+	d.grid.Width = d.width
+
+	d.routerView.height = d.height
+	d.dataView.height = d.height
+
+	d.grid.Align()
 }

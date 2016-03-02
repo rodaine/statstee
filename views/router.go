@@ -29,10 +29,11 @@ type routerView struct {
 	offset      int
 	l           *termui.List
 	needsRedraw bool
+	height      int
 }
 
-func newRouterView(r *router.Router) *routerView {
-	v := &routerView{l: termui.NewList()}
+func newRouterView(r *router.Router, height int) *routerView {
+	v := &routerView{l: termui.NewList(), height: height}
 
 	v.l.BorderLabel = instructions
 	v.l.BorderLabelFg = headerTextColor
@@ -75,7 +76,7 @@ func (v *routerView) update(r *router.Router, force bool) {
 	}
 
 	v.l.BorderLabel = fmt.Sprintf(headerTextFormat, instructions, selIdx+1, len(ms))
-	v.l.Height = termui.TermHeight()
+	v.l.Height = v.height
 
 	max := v.offset + v.l.Height - 3
 	if selIdx >= v.offset && selIdx <= max {
