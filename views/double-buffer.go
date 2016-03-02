@@ -3,8 +3,6 @@ package views
 import (
 	"sync"
 
-	"log"
-
 	"github.com/gizak/termui"
 	"github.com/rodaine/statstee/router"
 )
@@ -30,18 +28,16 @@ func (db *doubleBuffer) draw() {
 }
 
 func (db *doubleBuffer) lazy() {
-	log.Println("lazy")
 	go db.update(false)
 }
 
 func (db *doubleBuffer) update(force bool) {
 	db.Lock()
-	log.Println("updating")
+
 	db.next.update(false)
 	db.next.grid.Width = termui.TermWidth()
 	db.next.grid.Align()
 	db.current, db.next = db.next, db.current
 
-	log.Println("updated")
 	db.Unlock()
 }

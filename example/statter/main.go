@@ -17,11 +17,11 @@ func main() {
 	gs.SetNamespace("statter")
 
 	go histogram(gs)
+
 	go timer(gs)
 	go count(gs)
 	go gauge(gs)
 	go set(gs)
-
 	waitForSignal()
 }
 

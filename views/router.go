@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	headerText      = "q:Quit j:Next k:Prev"
-	headerTextColor = termui.ColorBlack | termui.AttrBold
+	instructions     = "q:Quit j:Next k:Prev"
+	headerTextFormat = "%s | %d/%d"
+	headerTextColor  = termui.ColorBlack | termui.AttrBold
 
 	borderColor = termui.ColorWhite
 
@@ -22,17 +23,20 @@ const (
 	selectedColor   = "black"
 )
 
-type routerView termui.List
+type routerView struct {
+	offset int
+	l      *termui.List
+}
 
 func newRouterView(r *router.Router) *routerView {
-	v := (*routerView)(termui.NewList())
+	v := &routerView{l: termui.NewList()}
 
-	v.BorderLabel = headerText
-	v.BorderLabelFg = headerTextColor
-	v.BorderLabelBg = borderColor
+	v.l.BorderLabel = instructions
+	v.l.BorderLabelFg = headerTextColor
+	v.l.BorderLabelBg = borderColor
 
-	v.BorderFg = borderColor
-	v.BorderBg = borderColor
+	v.l.BorderFg = borderColor
+	v.l.BorderBg = borderColor
 
 	v.update(r)
 	return v
@@ -42,12 +46,31 @@ func (v *routerView) update(r *router.Router) {
 	s := r.Selected()
 	ms := r.Metrics()
 
-	v.Items = make([]string, len(ms))
+	v.l.Height = termui.TermHeight()
+
+	items := make([]string, len(ms))
+	selIdx := 0
+
 	for i, m := range ms {
-		v.Items[i] = v.metricItemLabel(m, m.Name == s)
+		selected := m.Name == s
+		items[i] = v.metricItemLabel(m, selected)
+		if selected {
+			selIdx = i
+		}
 	}
 
-	v.Height = termui.TermHeight()
+	v.l.BorderLabel = fmt.Sprintf(headerTextFormat, instructions, selIdx+1, len(ms))
+
+	max := v.offset + v.l.Height - 3
+	if selIdx >= v.offset && selIdx <= max {
+		// noop
+	} else if selIdx < v.offset {
+		v.offset = selIdx
+	} else {
+		v.offset += selIdx - max
+	}
+
+	v.l.Items = items[v.offset:]
 }
 
 func (v *routerView) metricItemLabel(m datagram.Metric, selected bool) string {
@@ -56,7 +79,7 @@ func (v *routerView) metricItemLabel(m datagram.Metric, selected bool) string {
 		return lbl
 	}
 
-	offset := v.Width - len(lbl)
+	offset := v.l.Width - len(lbl)
 	if offset > 0 {
 		lbl += strings.Repeat(selectedPadding, offset)
 	}
@@ -69,5 +92,5 @@ func (v *routerView) metricItemLabel(m datagram.Metric, selected bool) string {
 }
 
 func (v *routerView) list() *termui.List {
-	return (*termui.List)(v)
+	return v.l
 }
