@@ -1,9 +1,13 @@
 package views
 
 import (
+	"sync"
+
 	"github.com/gizak/termui"
 	"github.com/rodaine/statstee/router"
 )
+
+var quitOnce = &sync.Once{}
 
 func Loop(r *router.Router) (err error) {
 	if err = termui.Init(); err != nil {
@@ -21,7 +25,7 @@ func Loop(r *router.Router) (err error) {
 }
 
 func Quit() {
-	termui.StopLoop()
+	quitOnce.Do(termui.StopLoop)
 }
 
 func registerHandlers(r *router.Router, db *doubleBuffer) {
