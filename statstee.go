@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,20 +13,24 @@ import (
 	"github.com/rodaine/statstee/views"
 )
 
+const (
+	logFile              = "statstee.log"
+	metricBufferSize int = 600
+)
+
 var (
-	logWriter io.WriteCloser
+	logWriter   io.WriteCloser
+	streamError error
 
 	deviceInterface string = "lo"
 	sniffedPort     int    = 8125
-	windowSize      int    = 600
 	outputDebug     bool   = false
 )
 
 func init() {
 	flag.StringVar(&deviceInterface, "d", deviceInterface, "network device to listen on")
 	flag.IntVar(&sniffedPort, "p", sniffedPort, "statsd UDP port to listen on")
-	flag.IntVar(&windowSize, "n", windowSize, "seconds of data to keep")
-	flag.BoolVar(&outputDebug, "v", outputDebug, "display debug output to ~/.statstee.log")
+	flag.BoolVar(&outputDebug, "v", outputDebug, "display debug output to "+logFile)
 	flag.Parse()
 
 	log.SetOutput(ioutil.Discard)
@@ -33,23 +38,24 @@ func init() {
 
 func main() {
 	if outputDebug {
-		logWriter, _ = os.OpenFile("statstee.log", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+		logWriter, _ = os.OpenFile(logFile, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
 		log.SetFlags(log.Lmicroseconds | log.LstdFlags | log.Lshortfile)
 		log.SetOutput(logWriter)
 		defer logWriter.Close()
 	}
 
-	c := make(chan datagram.Metric, windowSize)
+	c := make(chan datagram.Metric, metricBufferSize)
 	router := router.New(c)
 
 	go captureMetrics(router)
 	go sniffStream(c)
 
-	logIfError(views.Loop(router))
+	fatalIfError(views.Loop(router))
+	fatalIfError(streamError)
 }
 
 func sniffStream(c chan datagram.Metric) {
-	logIfError(datagram.Stream(deviceInterface, sniffedPort, c))
+	streamError = datagram.Stream(deviceInterface, sniffedPort, c)
 	close(c)
 }
 
@@ -58,8 +64,9 @@ func captureMetrics(r *router.Router) {
 	views.Quit()
 }
 
-func logIfError(err error) {
+func fatalIfError(err error) {
 	if err != nil {
-		log.Println(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }
