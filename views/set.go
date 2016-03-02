@@ -27,24 +27,24 @@ func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
 	switch w.Metric.Type {
 	case datagram.Gauge:
 		s.plots = []*plot{
-			newPlot("Gauge Value", color, w.Last, true),
+			newPlot("Gauge Value", color, w.Last, w.LastAverages),
 		}
 	case datagram.Counter:
 		s.plots = []*plot{
-			newPlot("Count", color, w.Sum, true),
-			newPlot("Cumulative Count", color, w.CumSum, false),
+			newPlot("Count", color, w.Sum, w.SumAverages),
+			newPlot("Cumulative Count", color, w.CumSum, nil),
 		}
 	case datagram.Histogram, datagram.Timer:
 		s.plots = []*plot{
-			newPlot("Count", color, w.Count, true),
-			newPlot("Median", color, w.Median, true),
-			newPlot("95th Percentile", color, w.P95, true),
-			newPlot("99th Percentile", color, w.P99, true),
+			newPlot("Count", color, w.Count, w.CountAverages),
+			newPlot("Median", color, w.Median, w.MedianAverages),
+			newPlot("75th Percentile", color, w.P75, w.P75Averages),
+			newPlot("95th Percentile", color, w.P75, w.P95Averages),
 		}
 	case datagram.Set:
 		s.plots = []*plot{
-			newPlot("Unique Count", color, w.Unique, true),
-			newPlot("Percent Unique", color, w.UniquePercent, true),
+			newPlot("Unique Count", color, w.Unique, w.UniqueAverages),
+			newPlot("Percent Unique", color, w.UniquePercent, w.UniquePercentAverages),
 		}
 	}
 

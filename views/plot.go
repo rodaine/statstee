@@ -1,12 +1,12 @@
 package views
 
 import (
-	"math"
 	"time"
 
 	"fmt"
 
 	"github.com/gizak/termui"
+	"github.com/rodaine/statstee/bucket"
 )
 
 const (
@@ -14,20 +14,21 @@ const (
 	plotLineModifier = termui.AttrBold
 
 	axesFormat = "15:04:05"
-	valFormat  = "%s: %.3g"
-	avgFormat  = "%s - avg(1m,5m,10m) %.2g, %.2g, %.2g"
+	valFormat  = "%s: %.4g"
+	avgFormat  = "%s - avg(1m,5m,10m) %.4g, %.4g, %.4g"
 )
 
 type plotFunc func() []float64
+type avgFunc func() bucket.Averages
 
 type plot struct {
-	avgs  bool
+	avgs  avgFunc
 	f     plotFunc
 	label string
 	lc    *termui.LineChart
 }
 
-func newPlot(label string, color termui.Attribute, f plotFunc, avgs bool) *plot {
+func newPlot(label string, color termui.Attribute, f plotFunc, avgs avgFunc) *plot {
 	lc := termui.NewLineChart()
 	lc.BorderLabel = label
 	lc.BorderBg = color
@@ -56,16 +57,17 @@ func (p *plot) update() {
 		data[len(data)-1],
 	)
 
-	if !p.avgs {
+	if p.avgs == nil {
 		return
 	}
 
+	avgs := p.avgs()
 	p.lc.BorderLabel = fmt.Sprintf(
 		avgFormat,
 		p.lc.BorderLabel,
-		ewma(data, 1),
-		ewma(data, 5),
-		ewma(data, 10),
+		avgs.EWMA1,
+		avgs.EWMA5,
+		avgs.EWMA10,
 	)
 }
 
@@ -121,18 +123,4 @@ func (p *plot) labels(size int) []string {
 	}
 
 	return lbls
-}
-
-// based off: https://en.wikipedia.org/wiki/Moving_average#Application_to_measuring_computer_performance
-func ewma(data []float64, minutes float64) float64 {
-	ct := len(data)
-	W := float64(ct) / 60.0 // How long is the data relevant (in minutes)
-	a := math.Exp(-1.0 / (W * minutes))
-
-	y := data[0]
-	for i := 1; i < ct; i++ {
-		y = data[i] + a*(y-data[i])
-	}
-
-	return y
 }
