@@ -3,6 +3,8 @@ package views
 import (
 	"sync"
 
+	"log"
+
 	"github.com/gizak/termui"
 	"github.com/rodaine/statstee/router"
 )
@@ -17,6 +19,7 @@ func Loop(r *router.Router) (err error) {
 	defer recover()
 
 	db := newBuffer(r)
+	db.update(true)
 	db.draw()
 
 	registerHandlers(r, db)
@@ -34,6 +37,7 @@ func registerHandlers(r *router.Router, db *doubleBuffer) {
 	})
 
 	termui.Handle("/sys/wnd/resize", func(e termui.Event) {
+		log.Println("resized")
 		db.update(true)
 		db.draw()
 	})

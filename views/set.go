@@ -16,6 +16,8 @@ type plotSet struct {
 	plots  []*plot
 	header *termui.Par
 	row    *termui.Row
+
+	grid *termui.Grid
 }
 
 func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
@@ -59,6 +61,10 @@ func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
 	s.update()
 
 	return s
+}
+
+func (s *plotSet) draw() {
+	termui.Render(s.row)
 }
 
 func (s *plotSet) update() {

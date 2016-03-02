@@ -31,7 +31,7 @@ func newDisplay(r *router.Router) *display {
 	}
 
 	d.grid = termui.NewGrid(termui.NewRow(
-		termui.NewCol(routerWidth, 0, d.routerView.list()),
+		termui.NewCol(routerWidth, 0, d.routerView.l),
 		d.dataView.row,
 	))
 	d.grid.Width = termui.TermWidth()
@@ -40,13 +40,18 @@ func newDisplay(r *router.Router) *display {
 	return d
 }
 
+func (d *display) draw() {
+	d.routerView.drawIfNeeded()
+	//d.dataView.draw()
+}
+
 func (d *display) update(force bool) {
 	if force {
 		d.grid.Width = termui.TermWidth()
 		d.grid.Align()
 	}
 
-	d.routerView.update(d.router)
+	d.routerView.update(d.router, force)
 
 	if sel := d.router.SelectedMetric(); sel.Metric.Name != d.dataView.metric.Name {
 		d.dataView = newSet(sel, d.grid.Rows[0].Cols[1])

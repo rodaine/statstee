@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"log"
+
 	"github.com/gizak/termui"
 	"github.com/rodaine/statstee/datagram"
 	"github.com/rodaine/statstee/router"
@@ -24,8 +26,9 @@ const (
 )
 
 type routerView struct {
-	offset int
-	l      *termui.List
+	offset      int
+	l           *termui.List
+	needsRedraw bool
 }
 
 func newRouterView(r *router.Router) *routerView {
@@ -38,19 +41,31 @@ func newRouterView(r *router.Router) *routerView {
 	v.l.BorderFg = borderColor
 	v.l.BorderBg = borderColor
 
-	v.update(r)
+	v.update(r, true)
 	return v
 }
 
-func (v *routerView) update(r *router.Router) {
+func (v *routerView) drawIfNeeded() {
+	if !v.needsRedraw {
+		return
+	}
+	v.needsRedraw = false
+
+	log.Println("drawing router")
+	termui.Render(v.l)
+}
+
+func (v *routerView) update(r *router.Router, force bool) {
+	if !r.NeedsUpdate() && !force {
+		return
+	}
+	v.needsRedraw = true
+
 	s := r.Selected()
 	ms := r.Metrics()
 
-	v.l.Height = termui.TermHeight()
-
 	items := make([]string, len(ms))
 	selIdx := 0
-
 	for i, m := range ms {
 		selected := m.Name == s
 		items[i] = v.metricItemLabel(m, selected)
@@ -60,6 +75,7 @@ func (v *routerView) update(r *router.Router) {
 	}
 
 	v.l.BorderLabel = fmt.Sprintf(headerTextFormat, instructions, selIdx+1, len(ms))
+	v.l.Height = termui.TermHeight()
 
 	max := v.offset + v.l.Height - 3
 	if selIdx >= v.offset && selIdx <= max {
@@ -70,7 +86,12 @@ func (v *routerView) update(r *router.Router) {
 		v.offset += selIdx - max
 	}
 
-	v.l.Items = items[v.offset:]
+	if len(items) > 0 {
+		items = items[v.offset:]
+	}
+
+	v.l.Items = items
+	log.Println("updated router view")
 }
 
 func (v *routerView) metricItemLabel(m datagram.Metric, selected bool) string {
