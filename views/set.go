@@ -16,6 +16,7 @@ type plotSet struct {
 	plots  []*plot
 	header *termui.Par
 	row    *termui.Row
+	height int
 }
 
 func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
@@ -48,29 +49,20 @@ func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
 		}
 	}
 
-	s.row = termui.NewCol(dataWidth, 0, s.items()...)
-	if prev != nil {
-		s.row.Width = prev.Width
-		s.row.Height = prev.Height
-		s.row.X = prev.X
-		s.row.Y = prev.Y
-	}
-
-	s.update()
-
+	s.row = termui.NewCol(dataGridSpan, 0, s.items()...)
 	return s
 }
 
 func (s *plotSet) update() {
-	ht := termui.TermHeight() - 1
+	ht := s.height - 1
 	ct := len(s.plots)
 
 	for _, p := range s.plots {
-		p.update()
-
 		p.lc.Height = ht / ct
 		ht -= p.lc.Height
 		ct--
+
+		p.update()
 	}
 
 }
