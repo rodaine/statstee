@@ -17,30 +17,29 @@ func main() {
 	gs.SetNamespace("statter")
 
 	go histogram(gs)
-
 	go timer(gs)
 	go count(gs)
 	go gauge(gs)
 	go set(gs)
+
 	waitForSignal()
 }
 
 func histogram(gs *godspeed.Godspeed) {
 	for range time.NewTicker(time.Millisecond * 3).C {
-		gs.Histogram("histogram", math.Sin(float64(time.Now().Unix())/math.Pi), nil)
+		gs.Histogram("histogram", math.Sin(float64(time.Now().Unix())/math.Pi)+rand.Float64(), nil)
 	}
 }
 
 func count(gs *godspeed.Godspeed) {
 	for range time.NewTicker(time.Millisecond * 5).C {
-		gs.Count("count", math.Abs(math.Sin(float64(time.Now().Unix())/math.Pi))/1000, nil)
+		gs.Count("count", math.Abs(math.Sin(float64(time.Now().Unix())/math.Pi))/10, nil)
 	}
 }
 
 func gauge(gs *godspeed.Godspeed) {
-	val := 0.0
 	for range time.NewTicker(time.Millisecond * 7).C {
-		val += math.Abs(rand.NormFloat64()) / 1000
+		val := math.Sin(float64(time.Now().Unix())/10*math.Pi) + math.Cos(float64(time.Now().Second())/100*math.Pi)
 		gs.Gauge("gauge", val, nil)
 	}
 }
@@ -53,7 +52,15 @@ func set(gs *godspeed.Godspeed) {
 
 func timer(gs *godspeed.Godspeed) {
 	for range time.NewTicker(time.Millisecond * 3).C {
-		gs.Timing("timer", math.Cos(float64(time.Now().Unix())/math.Pi), nil)
+		x := float64(time.Now().Unix()) / math.Pi
+		gs.Timing(
+			"timing",
+			1+math.Min(
+				math.Sin(x)+rand.Float64(),
+				math.Cos(x)+rand.Float64(),
+			),
+			nil,
+		)
 	}
 }
 
