@@ -26,6 +26,7 @@ const (
 type routerView struct {
 	offset int
 	l      *termui.List
+	height int
 }
 
 func newRouterView(r *router.Router) *routerView {
@@ -38,7 +39,6 @@ func newRouterView(r *router.Router) *routerView {
 	v.l.BorderFg = borderColor
 	v.l.BorderBg = borderColor
 
-	v.update(r)
 	return v
 }
 
@@ -46,7 +46,7 @@ func (v *routerView) update(r *router.Router) {
 	s := r.Selected()
 	ms := r.Metrics()
 
-	v.l.Height = termui.TermHeight()
+	v.l.Height = v.height
 
 	items := make([]string, len(ms))
 	selIdx := 0

@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	maxWidth    = 12
-	routerWidth = 3
-	dataWidth   = maxWidth - routerWidth
+	maxGridSpan    = 12
+	routerGridSpan = 3
+	dataGridSpan   = maxGridSpan - routerGridSpan
 )
 
 type display struct {
@@ -21,6 +21,8 @@ type display struct {
 	grid       *termui.Grid
 	routerView *routerView
 	dataView   *plotSet
+
+	width, height int
 }
 
 func newDisplay(r *router.Router) *display {
@@ -31,28 +33,32 @@ func newDisplay(r *router.Router) *display {
 	}
 
 	d.grid = termui.NewGrid(termui.NewRow(
-		termui.NewCol(routerWidth, 0, d.routerView.list()),
+		termui.NewCol(routerGridSpan, 0, d.routerView.list()),
 		d.dataView.row,
 	))
-	d.grid.Width = termui.TermWidth()
-	d.grid.Align()
 
 	return d
 }
 
-func (d *display) update(force bool) {
-	if force {
-		d.grid.Width = termui.TermWidth()
-		d.grid.Align()
-	}
-
+func (d *display) update() {
 	d.routerView.update(d.router)
 
 	if sel := d.router.SelectedMetric(); sel.Metric.Name != d.dataView.metric.Name {
 		d.dataView = newSet(sel, d.grid.Rows[0].Cols[1])
+		d.dataView.height = d.height
 		d.grid.Rows[0].Cols[1] = d.dataView.row
 		d.grid.Align()
 	}
 
 	d.dataView.update()
+}
+
+func (d *display) dimSync(width, height int) {
+	d.width, d.height = width, height
+
+	d.routerView.height = height
+	d.dataView.height = height
+
+	d.grid.Width = width
+	d.grid.Align()
 }

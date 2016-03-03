@@ -1,9 +1,8 @@
 package views
 
 import (
-	"time"
-
 	"fmt"
+	"time"
 
 	"github.com/gizak/termui"
 	"github.com/rodaine/statstee/bucket"
