@@ -17,7 +17,7 @@ for executable in ${executables[@]}; do
   package="$executable"
   test -d "$executable" && executable=$(basename $executable)
   echo "building $executable"
-  go build -a -o dist/$executable ./$package
+  go build -o dist/$executable ./$package
   (test -f dist/$executable && file dist/$executable) || {
     echo "dist/$executable failed to build. halting."
     exit 1
