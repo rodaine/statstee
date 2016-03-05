@@ -10,26 +10,31 @@ import (
 
 	"github.com/rodaine/statstee/datagram"
 	"github.com/rodaine/statstee/router"
+	"github.com/rodaine/statstee/streams"
 	"github.com/rodaine/statstee/views"
+	"golang.org/x/net/context"
 )
 
 const (
-	logFile              = "statstee.log"
-	metricBufferSize int = 600
+	logFile = "statstee.log"
 )
 
 var (
 	logWriter   io.WriteCloser
 	streamError error
 
-	deviceInterface string = "lo"
-	sniffedPort     int    = 8125
+	deviceInterface string = streams.LoopbackAbbr
+	sniffedPort     int    = streams.DefaultStatsDPort
 	outputDebug     bool   = false
+	listenMode      bool   = false
+	captureMode     bool   = false
 )
 
 func init() {
-	flag.StringVar(&deviceInterface, "d", deviceInterface, "network device to listen on")
-	flag.IntVar(&sniffedPort, "p", sniffedPort, "statsd UDP port to listen on")
+	flag.StringVar(&deviceInterface, "d", deviceInterface, "network device to capture on")
+	flag.IntVar(&sniffedPort, "p", sniffedPort, "StatsD UDP port to capture on")
+	flag.BoolVar(&listenMode, "l", listenMode, "listen instead of capture packets sent to the port")
+	flag.BoolVar(&captureMode, "c", captureMode, "force capture mode even if StatsD is not present")
 	flag.BoolVar(&outputDebug, "v", outputDebug, "display debug output to "+logFile)
 	flag.Parse()
 
@@ -44,19 +49,25 @@ func main() {
 		defer logWriter.Close()
 	}
 
-	c := make(chan datagram.Metric, metricBufferSize)
-	router := router.New(c)
+	mode := streams.DefaultMode
+	switch {
+	case listenMode:
+		mode = streams.ListenMode
+	case captureMode:
+		mode = streams.CaptureMode
+	}
+	stream, err := streams.ResolveStream(mode, deviceInterface, sniffedPort)
+	fatalIfError(err)
+
+	parser := datagram.NewParser()
+	router := router.New(parser.Chan())
 
 	go captureMetrics(router)
-	go sniffStream(c)
+	go parser.Parse(stream.Chan())
+	go stream.Listen(context.TODO())
 
 	fatalIfError(views.Loop(router))
 	fatalIfError(streamError)
-}
-
-func sniffStream(c chan datagram.Metric) {
-	streamError = datagram.Stream(deviceInterface, sniffedPort, c)
-	close(c)
 }
 
 func captureMetrics(r *router.Router) {

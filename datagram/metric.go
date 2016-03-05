@@ -79,6 +79,8 @@ func ParseMetric(raw string) (m Metric, err error) {
 				}
 			case TagsPrefix:
 				m.Tags = strings.Split(part[1:], ",")
+			default:
+				return m, MalformedMetricError
 			}
 		}
 	}
