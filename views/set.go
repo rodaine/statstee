@@ -40,7 +40,7 @@ func newSet(w *bucket.MetricWindow, prev *termui.Row) *plotSet {
 			newPlot("Count", color, w.Count, w.CountAverages),
 			newPlot("Median", color, w.Median, w.MedianAverages),
 			newPlot("75th Percentile", color, w.P75, w.P75Averages),
-			newPlot("95th Percentile", color, w.P75, w.P95Averages),
+			newPlot("95th Percentile", color, w.P95, w.P95Averages),
 		}
 	case datagram.Set:
 		s.plots = []*plot{
