@@ -24,10 +24,14 @@ func resolveDevice(iface string) (i net.Interface, err error) {
 			return i, nil
 		}
 
-		if iface == LoopbackAbbr && i.Flags&LoopbackFlags == LoopbackFlags {
+		if iface == LoopbackAbbr && isLoopback(i) {
 			return i, nil
 		}
 	}
 
 	return i, fmt.Errorf("unknown interface device: %s", iface)
+}
+
+func isLoopback(iface net.Interface) bool {
+	return iface.Flags&LoopbackFlags == LoopbackFlags
 }
