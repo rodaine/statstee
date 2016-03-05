@@ -10,13 +10,21 @@ The `statstee` utility collects and plots metrics emitted from other processes o
 
 ## Features
 
-* Cross-Platform (OSX / Linux / Windows)
-* Proxyless (daemon and processes can still use default host/port)
-* [Configurable](#usage) with sensible defaults (loopback interface, port 8125)
-* Supports all StatsD metric datatypes ([gauge](#gauge), [counter](#counter), [set](#set), [timing](#timing--histogram-datadog))
-* Supports DataDog histogram metrics (treated like standard StatsD timing)
-* Graphed time-series for each metric type
-* Current value and 1-, 5- & 10-minute moving averages
+- [x] Cross-Platform (OSX / Linux / Windows)
+- [x] Proxyless capture mode (daemon and processes can still use default host/port)
+- [x] Listener mode if no daemon is present (prevents packet loss)
+- [x] [Configurable](#usage) with sensible defaults (loopback interface, port 8125)
+- [x] Supports all StatsD metric data-types ([gauge](#gauge), [counter](#counter), [set](#set), [timing](#timing--histogram-datadog))
+- [x] Supports DataDog histogram metrics (treated like standard StatsD timing)
+- [x] Graphed time-series for each metric type
+- [x] Current value with 1-, 5- & 10-minute moving averages (EWMA)
+
+### Planned Features
+
+- [ ] Filter/search support
+- [ ] Sample rate support
+- [ ] DataDog [events][dd-events] and [service checks][dd-checks]
+- [ ] Save and/or replay metric data
 
 ### Gauge
 
@@ -55,12 +63,17 @@ Static binaries for many major platforms are forthcoming. For now, please refer 
 
 ```
 → statstee -h
-Usage of statstee:
+Usage of dist/statstee:
+  -c bool
+     force capture mode, even if StatsD is not present
   -d string
-      network device to listen on (default "_first_loopback_")
+      network device to capture on (default "_first_loopback_")
+  -l bool
+      force listen mode, error if the port cannot be bound
   -p int
-      statsd UDP port to listen on (default 8125)
-  -v  display debug output to statstee.log
+      port to capture on (default 8125)
+  -v bool
+      display debug output to statstee.log
 ```
 
 **NB:** You will likely need to run `statstee` as root or with `sudo` in order to snoop on the network traffic.
@@ -91,11 +104,7 @@ _Requires Go 1.5 or Higher_
 
 * `dist/statstee -v` - This app, with logging to `./statstee.log`!
 * `dist/statter` - Demo app for experimenting (outputs all metric types)
-
-[statsd]:  https://github.com/etsy/statsd
-[libpcap]: http://www.tcpdump.org/
-[winpcap]: http://www.winpcap.org/
-[winpcap-install]: http://www.winpcap.org/install/default.htm
+* `dist/jerks -n 1 -r 1000` - Load testing app (`n` metrics at `r` rps)
 
 ## License
 
@@ -108,3 +117,11 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[statsd]:          https://github.com/etsy/statsd
+[libpcap]:         http://www.tcpdump.org/
+[winpcap]:         http://www.winpcap.org/
+[winpcap-install]: http://www.winpcap.org/install/default.htm
+[dd]:              https://www.datadoghq.com/
+[dd-events]:       http://docs.datadoghq.com/guides/dogstatsd/#events-1
+[dd-checks]:       http://docs.datadoghq.com/guides/dogstatsd/#service-checks

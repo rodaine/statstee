@@ -38,9 +38,20 @@ func ResolveStream(mode StreamMode, device string, port int) (stream Interface, 
 	case DefaultMode:
 		fallthrough
 	default:
-		if stream, err = NewListener(port); err != nil {
-			return NewSniffer(device, port)
+		// get the network device
+		iface, err := resolveDevice(device)
+		if err != nil {
+			return nil, err
 		}
-		return
+
+		// if it's loopback, attempt to listen
+		if isLoopback(iface) {
+			if stream, err = NewListener(port); err == nil {
+				return stream, err
+			}
+		}
+
+		// can't listen, must sniff
+		return NewSniffer(device, port)
 	}
 }
