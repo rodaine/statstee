@@ -20,7 +20,7 @@ func (p *parser) Parse(data <-chan []byte) {
 	for raw := range data {
 		m, err := ParseMetric(string(raw))
 		if err != nil {
-			log.Println("unable to parse datagram: %v", err)
+			log.Printf("unable to parse datagram: %v", err)
 			continue
 		}
 		p.c <- m

@@ -1,27 +1,26 @@
 #!/bin/bash
 set -e
+
+GO15VENDOREXPERIMENT=1
 cd $(dirname "$0")/..
-script/require-glide
 
-pkgs=$(glide novendor |  grep -v "^.$" | xargs -n1 dirname)
+$(dirname "$0")/require-glide
 
-TARGET="$(go list $(glide novendor) | grep -v 'sync/api$')"
-if [ "$#" -gt "0" ]; then
-  TARGET="$@"
-fi
+pkgs=$(glide novendor | grep -v "^.$" | xargs -n1 dirname)
 
-FMT_ERRS=$(gofmt -l $pkgs 2>&1 | tee /dev/tty | wc -l)
-if [ "$FMT_ERRS" -gt "0" ]; then
-  echo "$FMT_ERRS Lint error(s) found in above file(s)."
-  exit 1
-fi
-echo "ok  gofmt"
+test -z "$(echo $pkgs | xargs -n1 gofmt -l -w 2>&1        | tee /dev/stderr)"
+test -z "$(echo $pkgs | xargs -n1 go tool vet -test 2>&1  | tee /dev/stderr)"
+#test -z "$(echo $pkgs | xargs -n1 golint 2>&1             | tee /dev/stderr)"
 
-VET_ERRS=$(go tool vet -test $pkgs 2>&1 | tee /dev/tty | wc -l)
-if [ "$VET_ERRS" -gt "0" ]; then
-   echo "$VET_ERRS Vet error(s) found above."
-  exit 1
-fi
-echo "ok go vet"
+echo "mode: atomic" > cover.out
+for pkg in $pkgs; do
+  if ls $pkg/*.go &> /dev/null; then
+    go test -race -covermode atomic -coverprofile=$pkg/cover.tmp $pkg
+    if [ -f $pkg/cover.tmp ]; then
+      cat $pkg/cover.tmp | tail -n +2 >> cover.out
+      rm $pkg/cover.tmp
+    fi
+  fi
+done
 
-go test -cover $TARGET
+go tool cover -html cover.out -o cover.html

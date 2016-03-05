@@ -29,7 +29,7 @@ var (
 		Type: Unknown,
 	}
 
-	Prefix = map[MetricType]string{
+	prefixes = map[MetricType]string{
 		Histogram: "H",
 		Timer:     "T",
 		Counter:   "C",
@@ -103,9 +103,9 @@ func (m Metric) String() string {
 }
 
 func (m Metric) TypePrefix() string {
-	if c, ok := Prefix[m.Type]; ok {
+	if c, ok := prefixes[m.Type]; ok {
 		return c
 	}
 
-	return Prefix[Unknown]
+	return prefixes[Unknown]
 }

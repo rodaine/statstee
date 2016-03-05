@@ -10,7 +10,7 @@ import (
 
 func TestRaw_Sum(t *testing.T) {
 	sum := 0.0
-	b := NewRaw(5)
+	b := NewRaw()
 	assert.Zero(t, b.Sum())
 
 	for _, v := range []float64{1, -2, 3, -4, 5} {
@@ -23,7 +23,7 @@ func TestRaw_Sum(t *testing.T) {
 
 func TestRaw_Freq(t *testing.T) {
 	ct := 0
-	b := NewRaw(100)
+	b := NewRaw()
 	assert.Zero(t, b.Freq())
 
 	for _, v := range []float64{1, 2, 3, 4, 5} {
@@ -31,23 +31,23 @@ func TestRaw_Freq(t *testing.T) {
 		b.Add(v)
 	}
 
-	assert.Equal(t, ct, b.Freq())
+	assert.Equal(t, float64(ct), b.Freq())
 }
 
 func TestRaw_Unique(t *testing.T) {
-	b := NewRaw(5)
+	b := NewRaw()
 	assert.Zero(t, b.Unique())
 
 	for _, v := range []float64{1, 1, 2, 2, 3} {
 		b.Add(v)
 	}
 
-	assert.Equal(t, 3, b.Unique())
+	assert.Equal(t, float64(3), b.Unique())
 }
 
 func TestRaw_Last(t *testing.T) {
 	var last float64
-	b := NewRaw(5)
+	b := NewRaw()
 	for _, last = range []float64{1, 3, 5, 7, 9} {
 		b.Add(last)
 	}
@@ -56,7 +56,7 @@ func TestRaw_Last(t *testing.T) {
 }
 
 func TestRaw_Mean(t *testing.T) {
-	b := NewRaw(5)
+	b := NewRaw()
 	assert.Zero(t, b.Mean())
 
 	ct := 0
@@ -72,7 +72,7 @@ func TestRaw_Mean(t *testing.T) {
 }
 
 func TestRaw_Min(t *testing.T) {
-	b := NewRaw(5)
+	b := NewRaw()
 	assert.Zero(t, b.Min())
 
 	min := math.MaxFloat64
@@ -85,7 +85,7 @@ func TestRaw_Min(t *testing.T) {
 }
 
 func TestRaw_Max(t *testing.T) {
-	b := NewRaw(5)
+	b := NewRaw()
 	assert.Zero(t, b.Max())
 
 	max := 0.0
@@ -110,7 +110,7 @@ func TestRaw_Median(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -131,7 +131,7 @@ func TestRaw_P75(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -155,7 +155,7 @@ func TestRaw_P95(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -179,7 +179,7 @@ func TestRaw_P99(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -188,7 +188,7 @@ func TestRaw_P99(t *testing.T) {
 }
 
 func TestRaw_Reset(t *testing.T) {
-	b := NewRaw(1)
+	b := NewRaw()
 	b.Add(123)
 
 	is := assert.New(t)
@@ -205,7 +205,7 @@ func TestRaw_Reset(t *testing.T) {
 func TestRaw_PercentilePanic(t *testing.T) {
 	for _, p := range []float64{-1, 0, 1.1} {
 		assert.Panics(t, func() {
-			b, ok := NewRaw(1).(*raw)
+			b, ok := NewRaw().(*raw)
 			if !ok {
 				assert.FailNow(t, "not a *raw")
 				return

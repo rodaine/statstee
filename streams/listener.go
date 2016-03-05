@@ -57,8 +57,6 @@ func (l *listener) Listen(ctx context.Context) error {
 
 		l.c <- raw
 	}
-
-	return nil
 }
 
 func (l *listener) Chan() <-chan []byte {

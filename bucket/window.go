@@ -123,7 +123,7 @@ func (w *Window) mapEWMA(f mapFunc, fill bool) []float64 {
 	vals := make([]float64, w.size-i)
 	prev := EmptyValue
 
-	for i, j := i, 0; i < w.size; i, j = i+1, j+1 {
+	for j := 0; i < w.size; i, j = i+1, j+1 {
 		b := w.buckets[w.Index(i)]
 
 		if b.Freq() == 0 && fill && prev != EmptyValue {
