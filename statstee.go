@@ -32,9 +32,9 @@ var (
 
 func init() {
 	flag.StringVar(&deviceInterface, "d", deviceInterface, "network device to capture on")
-	flag.IntVar(&sniffedPort, "p", sniffedPort, "StatsD UDP port to capture on")
-	flag.BoolVar(&listenMode, "l", listenMode, "listen instead of capture packets sent to the port")
-	flag.BoolVar(&captureMode, "c", captureMode, "force capture mode even if StatsD is not present")
+	flag.IntVar(&sniffedPort, "p", sniffedPort, "port to capture on")
+	flag.BoolVar(&listenMode, "l", listenMode, "force listen mode, error if the port cannot be bound")
+	flag.BoolVar(&captureMode, "c", captureMode, "force capture mode, even if StatsD is not present")
 	flag.BoolVar(&outputDebug, "v", outputDebug, "display debug output to "+logFile)
 	flag.Parse()
 
