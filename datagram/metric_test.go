@@ -21,6 +21,7 @@ func TestMetric_Parse(t *testing.T) {
 		{"foo.bar|h", true, Metric{}},
 		{"foo.bar:fizz|h", true, Metric{}},
 		{"foo.bar:123|h|@fizz", true, Metric{}},
+		{"foo.bar:456|h|$invalid", true, Metric{}},
 
 		{"foo.bar:123|h", false, Metric{Name: "foo.bar", Value: 123, Type: Histogram, SampleRate: 1}},
 		{"foo.bar:123|h|@0.5", false, Metric{Name: "foo.bar", Value: 123, Type: Histogram, SampleRate: 0.5}},

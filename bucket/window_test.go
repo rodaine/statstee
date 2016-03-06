@@ -6,27 +6,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWindow_NewPanic(t *testing.T) {
-	assert.Panics(t, func() { NewWindow(0) })
-	assert.Panics(t, func() { NewWindow(-1) })
-}
-
 func TestWindow_Count(t *testing.T) {
 	w := NewWindow(3)
 
 	tests := []struct {
 		vals     []float64
-		expected []int
+		expected []float64
 	}{
-		{[]float64{}, []int{0, 0, 0}},
-		{[]float64{1}, []int{0, 0, 1}},
-		{[]float64{1, 2}, []int{0, 1, 2}},
-		{[]float64{1, 2, 3}, []int{1, 2, 3}},
-		{[]float64{}, []int{2, 3, 0}},
+		{[]float64{}, []float64{0, 0, 0}},
+		{[]float64{1}, []float64{0, 0, 1}},
+		{[]float64{1, 2}, []float64{0, 1, 2}},
+		{[]float64{1, 2, 3}, []float64{1, 2, 3}},
+		{[]float64{}, []float64{2, 3, 0}},
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -50,7 +45,7 @@ func TestWindow_Sum(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -64,46 +59,22 @@ func TestWindow_Unique(t *testing.T) {
 
 	tests := []struct {
 		vals     []float64
-		expected []int
+		expected []float64
 	}{
-		{[]float64{}, []int{0, 0, 0}},
-		{[]float64{1}, []int{0, 0, 1}},
-		{[]float64{1, 2}, []int{0, 1, 2}},
-		{[]float64{1, 2, 1}, []int{1, 2, 2}},
-		{[]float64{}, []int{2, 2, 0}},
+		{[]float64{}, []float64{0, 0, 0}},
+		{[]float64{1}, []float64{0, 0, 1}},
+		{[]float64{1, 2}, []float64{0, 1, 2}},
+		{[]float64{1, 2, 1}, []float64{1, 2, 2}},
+		{[]float64{}, []float64{2, 2, 0}},
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
 		w.Push(b)
 		assert.EqualValues(t, test.expected, w.Unique(), "%+v", test)
-	}
-}
-
-func TestWindow_Mean(t *testing.T) {
-	w := NewWindow(3)
-
-	tests := []struct {
-		vals     []float64
-		expected []float64
-	}{
-		{[]float64{}, []float64{0, 0, 0}},
-		{[]float64{1}, []float64{0, 0, 1}},
-		{[]float64{1, 2}, []float64{0, 1, 1.5}},
-		{[]float64{1, 2, 3, 4}, []float64{1, 1.5, 2.5}},
-		{[]float64{}, []float64{1.5, 2.5, 0}},
-	}
-
-	for _, test := range tests {
-		b := NewRaw(len(test.vals))
-		for _, v := range test.vals {
-			b.Add(v)
-		}
-		w.Push(b)
-		assert.EqualValues(t, test.expected, w.Mean(), "%+v", test)
 	}
 }
 
@@ -122,7 +93,7 @@ func TestWindow_Median(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -146,7 +117,7 @@ func TestWindow_P75(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -170,36 +141,12 @@ func TestWindow_P95(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
 		w.Push(b)
 		assert.EqualValues(t, test.expected, w.P95(), "%+v", test)
-	}
-}
-
-func TestWindow_P99(t *testing.T) {
-	w := NewWindow(3)
-
-	tests := []struct {
-		vals     []float64
-		expected []float64
-	}{
-		{[]float64{}, []float64{0, 0, 0}},
-		{[]float64{1}, []float64{0, 0, 1}},
-		{[]float64{1, 2}, []float64{0, 1, 2}},
-		{[]float64{1, 2, 3, 4}, []float64{1, 2, 4}},
-		{[]float64{}, []float64{2, 4, 0}},
-	}
-
-	for _, test := range tests {
-		b := NewRaw(len(test.vals))
-		for _, v := range test.vals {
-			b.Add(v)
-		}
-		w.Push(b)
-		assert.EqualValues(t, test.expected, w.P99(), "%+v", test)
 	}
 }
 
@@ -211,14 +158,14 @@ func TestWindow_UniquePercent(t *testing.T) {
 		expected []float64
 	}{
 		{[]float64{}, []float64{0, 0, 0}},
-		{[]float64{1}, []float64{0, 0, 1}},
-		{[]float64{1, 2}, []float64{0, 1, 1}},
-		{[]float64{1, 2, 1, 2}, []float64{1, 1, .5}},
-		{[]float64{}, []float64{1, .5, 0}},
+		{[]float64{1}, []float64{0, 0, 100}},
+		{[]float64{1, 2}, []float64{0, 100, 100}},
+		{[]float64{1, 2, 1, 2}, []float64{100, 100, 50}},
+		{[]float64{}, []float64{100, 50, 0}},
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}
@@ -245,7 +192,7 @@ func TestWindow_Last(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := NewRaw(len(test.vals))
+		b := NewRaw()
 		for _, v := range test.vals {
 			b.Add(v)
 		}

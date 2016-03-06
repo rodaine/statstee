@@ -22,9 +22,9 @@ type Router struct {
 	selected string
 }
 
-func (r Router) Len() int           { return len(r.metrics) }
-func (r Router) Less(i, j int) bool { return r.metrics[i].Metric.Name < r.metrics[j].Metric.Name }
-func (r Router) Swap(i, j int) {
+func (r *Router) Len() int           { return len(r.metrics) }
+func (r *Router) Less(i, j int) bool { return r.metrics[i].Metric.Name < r.metrics[j].Metric.Name }
+func (r *Router) Swap(i, j int) {
 	a, b := r.metrics[i].Metric.Name, r.metrics[j].Metric.Name
 	r.metrics[i], r.metrics[j] = r.metrics[j], r.metrics[i]
 	r.metricsLookup[a], r.metricsLookup[b] = j, i
