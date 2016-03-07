@@ -17,8 +17,8 @@ const (
 	Set       MetricType = "s"
 	Unknown   MetricType = "?"
 
-	SampleRatePrefix = byte('@')
-	TagsPrefix       = byte('#')
+	sampleRatePrefix = byte('@')
+	tagsPrefix       = byte('#')
 )
 
 var (
@@ -73,11 +73,11 @@ func ParseMetric(raw string) (m Metric, err error) {
 	if len(parts) > 2 {
 		for _, part := range parts[2:] {
 			switch part[0] {
-			case SampleRatePrefix:
+			case sampleRatePrefix:
 				if m.SampleRate, err = strconv.ParseFloat(part[1:], 64); err != nil {
 					return
 				}
-			case TagsPrefix:
+			case tagsPrefix:
 				m.Tags = strings.Split(part[1:], ",")
 			default:
 				return m, MalformedMetricError

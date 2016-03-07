@@ -7,6 +7,7 @@ import (
 )
 
 func TestMetric_Parse(t *testing.T) {
+	t.Parallel()
 	is := assert.New(t)
 
 	tests := []struct {
@@ -43,6 +44,7 @@ func TestMetric_Parse(t *testing.T) {
 }
 
 func TestMetric_String(t *testing.T) {
+	t.Parallel()
 	is := assert.New(t)
 
 	tests := []struct {
@@ -57,5 +59,28 @@ func TestMetric_String(t *testing.T) {
 
 	for _, test := range tests {
 		is.Equal(test.Expected, test.Metric.String(), "%#v", test.Metric)
+	}
+}
+
+func TestMetric_Prefix(t *testing.T) {
+	t.Parallel()
+	is := assert.New(t)
+
+	tests := []struct {
+		Type   MetricType
+		Prefix string
+	}{
+		{Histogram, "H"},
+		{Timer, "T"},
+		{Counter, "C"},
+		{Gauge, "G"},
+		{Set, "S"},
+		{Unknown, "?"},
+		{"foobar", "?"},
+	}
+
+	for _, test := range tests {
+		m := Metric{Type: test.Type}
+		is.Equal(test.Prefix, m.TypePrefix(), "%#v", test)
 	}
 }
