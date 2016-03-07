@@ -30,3 +30,5 @@ func (p *parser) Parse(data <-chan []byte) {
 func (p *parser) Chan() <-chan Metric {
 	return p.c
 }
+
+var _ Parser = &parser{}
