@@ -139,14 +139,14 @@ func (w *Window) mapEWMA(f mapFunc, fill bool) []float64 {
 }
 
 // based off: https://en.wikipedia.org/wiki/Moving_average#Application_to_measuring_computer_performance
-func (w *Window) ewma(data []float64, interval float64) float64 {
+func (w *Window) ewma(data []float64, minutes float64) float64 {
 	ct := len(data)
 	if ct == 0 {
 		return 0.0
 	}
 
 	W := float64(ct) / 60.0 // How long is the data relevant (in minutes)
-	a := math.Exp(-1.0 / (W * interval))
+	a := math.Exp(-1.0 / (W * minutes))
 
 	y := data[0]
 	for i := 1; i < ct; i++ {
