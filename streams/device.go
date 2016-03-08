@@ -14,10 +14,7 @@ const (
 )
 
 func resolveDevice(iface string) (i net.Interface, err error) {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return i, err
-	}
+	ifaces, _ := net.Interfaces()
 
 	for _, i := range ifaces {
 		if i.Name == iface {
