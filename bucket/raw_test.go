@@ -9,6 +9,8 @@ import (
 )
 
 func TestRaw_Sum(t *testing.T) {
+	t.Parallel()
+
 	sum := 0.0
 	b := NewRaw()
 	assert.Zero(t, b.Sum())
@@ -22,6 +24,8 @@ func TestRaw_Sum(t *testing.T) {
 }
 
 func TestRaw_Freq(t *testing.T) {
+	t.Parallel()
+
 	ct := 0
 	b := NewRaw()
 	assert.Zero(t, b.Freq())
@@ -35,6 +39,8 @@ func TestRaw_Freq(t *testing.T) {
 }
 
 func TestRaw_Unique(t *testing.T) {
+	t.Parallel()
+
 	b := NewRaw()
 	assert.Zero(t, b.Unique())
 
@@ -46,6 +52,8 @@ func TestRaw_Unique(t *testing.T) {
 }
 
 func TestRaw_Last(t *testing.T) {
+	t.Parallel()
+
 	var last float64
 	b := NewRaw()
 	for _, last = range []float64{1, 3, 5, 7, 9} {
@@ -56,6 +64,8 @@ func TestRaw_Last(t *testing.T) {
 }
 
 func TestRaw_Mean(t *testing.T) {
+	t.Parallel()
+
 	b := NewRaw()
 	assert.Zero(t, b.Mean())
 
@@ -72,6 +82,8 @@ func TestRaw_Mean(t *testing.T) {
 }
 
 func TestRaw_Min(t *testing.T) {
+	t.Parallel()
+
 	b := NewRaw()
 	assert.Zero(t, b.Min())
 
@@ -85,6 +97,8 @@ func TestRaw_Min(t *testing.T) {
 }
 
 func TestRaw_Max(t *testing.T) {
+	t.Parallel()
+
 	b := NewRaw()
 	assert.Zero(t, b.Max())
 
@@ -98,6 +112,8 @@ func TestRaw_Max(t *testing.T) {
 }
 
 func TestRaw_Median(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		vals     []float64
 		expected float64
@@ -119,6 +135,8 @@ func TestRaw_Median(t *testing.T) {
 }
 
 func TestRaw_P75(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		vals     []float64
 		expected float64
@@ -140,6 +158,8 @@ func TestRaw_P75(t *testing.T) {
 }
 
 func TestRaw_P95(t *testing.T) {
+	t.Parallel()
+
 	vals := make([]float64, 100)
 	for i := 1; i <= 100; i++ {
 		vals[i-1] = float64(i)
@@ -164,6 +184,8 @@ func TestRaw_P95(t *testing.T) {
 }
 
 func TestRaw_P99(t *testing.T) {
+	t.Parallel()
+
 	vals := make([]float64, 1000)
 	for i := 1; i <= 1000; i++ {
 		vals[i-1] = float64(i)
@@ -188,6 +210,8 @@ func TestRaw_P99(t *testing.T) {
 }
 
 func TestRaw_Reset(t *testing.T) {
+	t.Parallel()
+
 	b := NewRaw()
 	b.Add(123)
 
@@ -203,6 +227,8 @@ func TestRaw_Reset(t *testing.T) {
 }
 
 func TestRaw_PercentilePanic(t *testing.T) {
+	t.Parallel()
+
 	for _, p := range []float64{-1, 0, 1.1} {
 		assert.Panics(t, func() {
 			b, ok := NewRaw().(*raw)

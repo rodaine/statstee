@@ -7,6 +7,8 @@ import (
 )
 
 func TestFixed(t *testing.T) {
+	t.Parallel()
+
 	raw := NewRaw()
 	for i := 1; i <= 1000; i++ {
 		raw.Add(float64(i))
