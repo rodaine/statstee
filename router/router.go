@@ -54,10 +54,10 @@ func (r *Router) addOrGet(m datagram.Metric) *bucket.MetricWindow {
 	}
 	r.RUnlock()
 
-	return r.Add(m)
+	return r.add(m)
 }
 
-func (r *Router) Add(m datagram.Metric) *bucket.MetricWindow {
+func (r *Router) add(m datagram.Metric) *bucket.MetricWindow {
 	r.Lock()
 	defer r.Unlock()
 
