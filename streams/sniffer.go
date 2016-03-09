@@ -18,7 +18,7 @@ type sniffer struct {
 	c      chan []byte
 }
 
-func NewSniffer(device string, port int) (Interface, error) {
+func newSniffer(device string, port int) (Interface, error) {
 	iface, err := resolveDevice(device)
 	if err != nil {
 		return nil, err
@@ -29,17 +29,17 @@ func NewSniffer(device string, port int) (Interface, error) {
 		return nil, err
 	}
 
-	handle.SetSnapLen(MaxDatagramSize)
+	handle.SetSnapLen(maxDatagramSize)
 	handle.SetImmediateMode(true)
 	handle.SetPromisc(true)
 	handle.SetTimeout(pcap.BlockForever)
 	handle.SetRFMon(true)
-	handle.SetBufferSize(MaxDatagramSize)
+	handle.SetBufferSize(maxDatagramSize)
 
 	s := &sniffer{
 		handle: handle,
 		port:   port,
-		c:      make(chan []byte, 1000),
+		c:      make(chan []byte, channelBuffer),
 	}
 
 	return s, nil
@@ -60,21 +60,19 @@ func (s *sniffer) Listen(ctx context.Context) error {
 	}
 
 	packetSource := gopacket.NewPacketSource(h, h.LinkType())
-	for packet := range packetSource.Packets() {
+	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		default:
-			//noop
+		case packet := <-packetSource.Packets():
+			raw := packet.ApplicationLayer().Payload()
+			s.c <- raw
 		}
-
-		raw := packet.ApplicationLayer().Payload()
-		s.c <- raw
 	}
-
-	return nil
 }
 
 func (s *sniffer) Chan() <-chan []byte {
 	return s.c
 }
+
+var _ Interface = &sniffer{}

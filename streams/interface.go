@@ -6,8 +6,8 @@ const (
 	// DefaultStatsDPort is the default port the StatsD daemon listens on
 	DefaultStatsDPort = 8125
 
-	// DatagramSize is the maximum size of a UDP datagram
-	MaxDatagramSize = 8192
+	maxDatagramSize = 8192
+	channelBuffer   = 1000
 )
 
 type StreamMode uint8
@@ -32,9 +32,9 @@ type Interface interface {
 func ResolveStream(mode StreamMode, device string, port int) (stream Interface, err error) {
 	switch mode {
 	case ListenMode:
-		return NewListener(port)
+		return newListener(port)
 	case CaptureMode:
-		return NewSniffer(device, port)
+		return newSniffer(device, port)
 	case DefaultMode:
 		fallthrough
 	default:
@@ -46,12 +46,12 @@ func ResolveStream(mode StreamMode, device string, port int) (stream Interface, 
 
 		// if it's loopback, attempt to listen
 		if isLoopback(iface) {
-			if stream, err = NewListener(port); err == nil {
+			if stream, err = newListener(port); err == nil {
 				return stream, err
 			}
 		}
 
 		// can't listen, must sniff
-		return NewSniffer(device, port)
+		return newSniffer(device, port)
 	}
 }

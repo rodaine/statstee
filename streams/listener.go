@@ -6,6 +6,8 @@ import (
 
 	"log"
 
+	"time"
+
 	"golang.org/x/net/context"
 )
 
@@ -14,7 +16,7 @@ type listener struct {
 	c    chan []byte
 }
 
-func NewListener(port int) (Interface, error) {
+func newListener(port int) (Interface, error) {
 	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Printf("unable to resolve UDP address: %v", err)
@@ -29,7 +31,7 @@ func NewListener(port int) (Interface, error) {
 
 	return &listener{
 		conn: conn,
-		c:    make(chan []byte, 1000),
+		c:    make(chan []byte, channelBuffer),
 	}, nil
 }
 
@@ -37,7 +39,7 @@ func (l *listener) Listen(ctx context.Context) error {
 	defer l.conn.Close()
 	defer close(l.c)
 
-	buffer := make([]byte, MaxDatagramSize)
+	buffer := make([]byte, maxDatagramSize)
 	for {
 		select {
 		case <-ctx.Done():
@@ -46,10 +48,16 @@ func (l *listener) Listen(ctx context.Context) error {
 			//noop
 		}
 
+		l.conn.SetReadDeadline(time.Now().Add(time.Second))
 		n, _, err := l.conn.ReadFromUDP(buffer)
 		if err != nil {
+			if netErr, ok := err.(net.Error); ok {
+				if netErr.Timeout() || netErr.Temporary() {
+					continue
+				}
+			}
 			log.Printf("unable to read bytes from connection: %v", err)
-			continue
+			return err
 		}
 
 		raw := make([]byte, n)
@@ -62,3 +70,5 @@ func (l *listener) Listen(ctx context.Context) error {
 func (l *listener) Chan() <-chan []byte {
 	return l.c
 }
+
+var _ Interface = &listener{}

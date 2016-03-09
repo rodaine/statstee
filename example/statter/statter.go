@@ -24,7 +24,7 @@ func main() {
 
 func histogram() {
 	sender, _ := datagram.NewSender("localhost", 8125)
-	for range time.NewTicker(time.Millisecond * 3).C {
+	for _ = range time.NewTicker(time.Millisecond * 3).C {
 		sender.Send(datagram.Metric{
 			Type:       datagram.Histogram,
 			Name:       "statter.histogram",
@@ -36,7 +36,7 @@ func histogram() {
 
 func count() {
 	sender, _ := datagram.NewSender("localhost", 8125)
-	for range time.NewTicker(time.Millisecond * 5).C {
+	for _ = range time.NewTicker(time.Millisecond * 5).C {
 		sender.Send(datagram.Metric{
 			Type:       datagram.Counter,
 			Name:       "statter.count",
@@ -48,7 +48,7 @@ func count() {
 
 func gauge() {
 	sender, _ := datagram.NewSender("localhost", 8125)
-	for range time.NewTicker(time.Millisecond * 7).C {
+	for _ = range time.NewTicker(time.Millisecond * 7).C {
 		sender.Send(datagram.Metric{
 			Type:       datagram.Gauge,
 			Name:       "statter.gauge",
@@ -60,7 +60,7 @@ func gauge() {
 
 func set() {
 	sender, _ := datagram.NewSender("localhost", 8125)
-	for range time.NewTicker(time.Millisecond).C {
+	for _ = range time.NewTicker(time.Millisecond).C {
 		sender.Send(datagram.Metric{
 			Type:       datagram.Set,
 			Name:       "statter.set",
@@ -72,7 +72,7 @@ func set() {
 
 func timer() {
 	sender, _ := datagram.NewSender("localhost", 8125)
-	for range time.NewTicker(time.Millisecond * 11).C {
+	for _ = range time.NewTicker(time.Millisecond * 11).C {
 		x := float64(time.Now().Unix()) / math.Pi
 		sender.Send(datagram.Metric{
 			Type:       datagram.Timer,

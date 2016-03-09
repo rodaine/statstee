@@ -30,7 +30,7 @@ func NewMetricWindow(m datagram.Metric, size int, d time.Duration) *MetricWindow
 }
 
 func (w *MetricWindow) tick(d time.Duration) {
-	for range time.NewTicker(d).C {
+	for _ = range time.NewTicker(d).C {
 		w.Lock()
 
 		w.Push(w.curr)
