@@ -77,6 +77,7 @@ func captureMetrics(r *router.Router) {
 
 func fatalIfError(err error) {
 	if err != nil {
+		log.Println(err)
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
