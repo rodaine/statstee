@@ -2,6 +2,7 @@ package streams
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
@@ -21,11 +22,13 @@ type sniffer struct {
 func newSniffer(device string, port int) (Interface, error) {
 	iface, err := resolveDevice(device)
 	if err != nil {
+		log.Printf("unable to resolve device: %v", err)
 		return nil, err
 	}
 
 	handle, err := pcap.NewInactiveHandle(iface.Name)
 	if err != nil {
+		log.Printf("unable to create handle: %v", err)
 		return nil, err
 	}
 
@@ -34,7 +37,6 @@ func newSniffer(device string, port int) (Interface, error) {
 	handle.SetPromisc(true)
 	handle.SetTimeout(pcap.BlockForever)
 	handle.SetRFMon(true)
-	handle.SetBufferSize(maxDatagramSize)
 
 	s := &sniffer{
 		handle: handle,
@@ -51,12 +53,16 @@ func (s *sniffer) Listen(ctx context.Context) error {
 
 	h, err := s.handle.Activate()
 	if err != nil {
-		return fmt.Errorf("unable to activate pcap handle: %v", err)
+		err = fmt.Errorf("unable to activate pcap handle: %v", err)
+		log.Println(err)
+		return err
 	}
 	defer h.Close()
 
 	if err = h.SetBPFFilter(fmt.Sprintf(udpPortFilter, s.port)); err != nil {
-		return fmt.Errorf("unable to apply BPF filter: %v", err)
+		err = fmt.Errorf("unable to apply BPF filter: %v", err)
+		log.Println(err)
+		return err
 	}
 
 	packetSource := gopacket.NewPacketSource(h, h.LinkType())
