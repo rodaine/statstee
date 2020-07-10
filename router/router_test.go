@@ -54,9 +54,9 @@ func TestRouter_SelectedMetric(t *testing.T) {
 	r := New(c)
 	go r.Listen()
 
-	assert.Equal(t, bucket.DummyWindow, r.SelectedMetric())
+	assert.True(t, bucket.DummyWindow == r.SelectedMetric())
 	r.selected = "foo"
-	assert.Equal(t, bucket.DummyWindow, r.SelectedMetric())
+	assert.True(t, bucket.DummyWindow == r.SelectedMetric())
 	r.selected = ""
 
 	c <- datagram.Metric{
@@ -66,7 +66,7 @@ func TestRouter_SelectedMetric(t *testing.T) {
 		SampleRate: 1,
 	}
 
-	assert.NotEqual(t, bucket.DummyWindow, r.SelectedMetric())
+	assert.False(t, bucket.DummyWindow == r.SelectedMetric())
 	assert.NotNil(t, r.SelectedMetric())
 }
 

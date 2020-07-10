@@ -1,26 +1,4 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-export GO15VENDOREXPERIMENT=1
-cd $(dirname "$0")/..
-
-$(dirname "$0")/require-glide
-
-pkgs=$(glide novendor | grep -v "^.$" | xargs -n1 dirname)
-
-test -z "$(echo $pkgs | xargs -n1 gofmt -l -w 2>&1        | tee /dev/stderr)"
-test -z "$(echo $pkgs | xargs -n1 go tool vet -test 2>&1  | tee /dev/stderr)"
-#test -z "$(echo $pkgs | xargs -n1 golint 2>&1             | tee /dev/stderr)"
-
-echo "mode: atomic" > cover.out
-for pkg in $pkgs; do
-  if ls $pkg/*.go &> /dev/null; then
-    go test -race -covermode atomic -coverprofile=$pkg/cover.tmp $pkg
-    if [ -f $pkg/cover.tmp ]; then
-      cat $pkg/cover.tmp | tail -n +2 >> cover.out
-      rm $pkg/cover.tmp
-    fi
-  fi
-done
-
-go tool cover -html cover.out -o cover.html
+go test -race -covermode atomic ./...

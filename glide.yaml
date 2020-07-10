@@ -1,9 +1,0 @@
-package: github.com/rodaine/statstee
-import:
-- package: github.com/gizak/termui
-- package: github.com/google/gopacket
-  subpackages:
-  - pcap
-- package: github.com/stretchr/testify
-  subpackages:
-  - assert

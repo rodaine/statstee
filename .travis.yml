@@ -1,7 +1,6 @@
 language: go
 go:
-- '1.5'
-- '1.6'
+- '1.14'
 
 addons:
   apt:
@@ -12,9 +11,4 @@ branches:
   only:
     - master
 
-env:
-  global:
-  - GO15VENDOREXPERIMENT=1
-
-install: script/bootstrap
 script:  script/test
