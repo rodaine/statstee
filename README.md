@@ -80,7 +80,7 @@ Usage of dist/statstee:
 
 ## Development
 
-_Requires Go 1.5 or Higher_
+_Requires Go 1.14 or Higher_
 
 #### Install libpcap for your OS & architecture
 
@@ -94,11 +94,11 @@ _Requires Go 1.5 or Higher_
 
 #### Run tests
 
-`script/bootstrap && script/test`
+`script/test`
 
 #### Build executables
 
-`script/bootstrap && script/build`
+`script/build`
 
 #### Run executables
 
