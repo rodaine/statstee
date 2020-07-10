@@ -1,26 +1,11 @@
 #!/bin/bash
-set -e
-
-export GO15VENDOREXPERIMENT=1
-script/require-glide
+set -euo pipefail
 
 mkdir -p dist
 
-if test $# -lt 1; then
-  dir=`basename $(pwd)`
-  executables=$(grep "package main" ../$dir/*.go ../$dir/*/**/*.go | grep -v _test.go | grep -v vendor | cut -d: -f1 | xargs -n1 -I{} dirname {} | uniq)
-else
-  executables=$@
-fi
+executables=`go list -f "{{ .Name }}: {{ .ImportPath }}" ./... | grep "main:" | cut -d ' ' -f2`
 
 for executable in ${executables[@]}; do
-  package="$executable"
-  test -d "$executable" && executable=$(basename $executable)
-  echo "building $executable"
-  go build -o dist/$executable ./$package
-  (test -f dist/$executable && file dist/$executable) || {
-    echo "dist/$executable failed to build. halting."
-    exit 1
-  }
-  echo
+  name=`basename $executable`
+  go build -o "dist/${name}" "$executable"
 done

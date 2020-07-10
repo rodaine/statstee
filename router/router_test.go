@@ -54,9 +54,9 @@ func TestRouter_SelectedMetric(t *testing.T) {
 	r := New(c)
 	go r.Listen()
 
-	assert.Equal(t, bucket.DummyWindow, r.SelectedMetric())
+	assert.True(t, bucket.DummyWindow == r.SelectedMetric())
 	r.selected = "foo"
-	assert.Equal(t, bucket.DummyWindow, r.SelectedMetric())
+	assert.True(t, bucket.DummyWindow == r.SelectedMetric())
 	r.selected = ""
 
 	c <- datagram.Metric{
@@ -66,18 +66,15 @@ func TestRouter_SelectedMetric(t *testing.T) {
 		SampleRate: 1,
 	}
 
-	assert.NotEqual(t, bucket.DummyWindow, r.SelectedMetric())
+	assert.False(t, bucket.DummyWindow == r.SelectedMetric())
 	assert.NotNil(t, r.SelectedMetric())
 }
 
 func TestRouter_PreviousNext(t *testing.T) {
 	t.Parallel()
 
-	c := make(chan datagram.Metric)
-	defer close(c)
-
+	c := make(chan datagram.Metric, 2)
 	r := New(c)
-	go r.Listen()
 
 	r.Previous()
 	assert.Empty(t, r.Selected())
@@ -96,6 +93,9 @@ func TestRouter_PreviousNext(t *testing.T) {
 		Value:      1,
 		SampleRate: 1,
 	}
+	close(c)
+	r.Listen()
+
 
 	assert.Equal(t, "foo.bar", r.Selected(), "first metric added should be selected")
 	r.selected = "not.found"
