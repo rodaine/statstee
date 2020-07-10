@@ -73,11 +73,8 @@ func TestRouter_SelectedMetric(t *testing.T) {
 func TestRouter_PreviousNext(t *testing.T) {
 	t.Parallel()
 
-	c := make(chan datagram.Metric)
-	defer close(c)
-
+	c := make(chan datagram.Metric, 2)
 	r := New(c)
-	go r.Listen()
 
 	r.Previous()
 	assert.Empty(t, r.Selected())
@@ -96,6 +93,9 @@ func TestRouter_PreviousNext(t *testing.T) {
 		Value:      1,
 		SampleRate: 1,
 	}
+	close(c)
+	r.Listen()
+
 
 	assert.Equal(t, "foo.bar", r.Selected(), "first metric added should be selected")
 	r.selected = "not.found"
