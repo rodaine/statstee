@@ -12,6 +12,6 @@ require (
 	github.com/nsf/termbox-go v0.0.0-20160122232915-362329b0aa64 // indirect
 	github.com/pmezard/go-difflib v0.0.0-20151028094244-d8ed2627bdf0 // indirect
 	github.com/stretchr/testify v1.1.4-0.20160305165446-6fe211e49392
-	golang.org/x/net v0.23.0
+	golang.org/x/net v0.33.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
